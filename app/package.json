@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "vite build && node inline.mjs",
-    "test": "node --test src/model.test.mjs wix/causes-bridge.test.mjs"
+    "test": "node --test src/model.test.mjs wix/causes-bridge.test.mjs supabase/funding.test.mjs"
   },
   "dependencies": {
     "react": "19.3.0",

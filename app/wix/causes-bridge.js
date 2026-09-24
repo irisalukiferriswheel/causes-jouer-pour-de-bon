@@ -9,6 +9,7 @@ export function projectCauses(response, now = new Date().toISOString()) {
  if (!response || !Array.isArray(response.data)) throw new Error('Invalid API response');
  return {updatedAt:now,causes:response.data.map(c=>({
    id:c.id,name:c.name,description:c.description,country:c.country,websiteUrl:c.websiteUrl,
+   goalAmount:c.goalAmount,raisedAmount:c.raisedAmount,currency:c.currency,imageUrl:c.imageUrl,campaignStart:c.campaignStart,campaignEnd:c.campaignEnd,
    supporterCount:Number.isSafeInteger(c.supporterCount)&&c.supporterCount>=0?c.supporterCount:null,
    featured:typeof c.featured==='boolean'?c.featured:FEATURED_CAUSE_IDS.includes(c.id)
  }))};

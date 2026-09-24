@@ -1,29 +1,11 @@
 # Causes — Jouer pour de bon
 
-Bilingual React page designed to embed in the Wix causes page.
+- [Wix embed URL](https://irisalukiferriswheel.github.io/causes-jouer-pour-de-bon/)
+- [Fictional visual preview](https://irisalukiferriswheel.github.io/causes-jouer-pour-de-bon/preview.html)
+- [Database fields and setup](app/README.md)
 
-- **Embed URL:** https://irisalukiferriswheel.github.io/causes-jouer-pour-de-bon/
-- **Visual preview:** https://irisalukiferriswheel.github.io/causes-jouer-pour-de-bon/preview.html
+The React page loads published causes from a Supabase read-only endpoint. Funding goals, amount raised, progress, remaining amount, currency, supporter counts, images and campaign end dates are supported in French and English. No real causes, goals or funding amounts have been entered. Existing placeholders are not published.
 
-The production embed requires the Wix data bridge in `app/wix/`. When opened alone, it cannot load live causes. The visual preview uses a dated snapshot and is not a live player-support feed.
+Embed the production URL directly in Wix. Data works without a Wix bridge. Optional site-wide language synchronization is in `app/wix/causes-page.js`.
 
-## Install in Wix
-
-Use the embed URL as the source of an HTML component named `causesEmbed`. Install the page, public bridge, and backend files as described in [the integration guide](app/README.md). Live data requires the shared causes API and Wix bridge; GitHub Pages only hosts the frontend.
-
-## Update
-
-Editable source is in `app/`; prebuilt static files are in `docs/`. GitHub Pages publishes `main` → `/docs`.
-
-With a Node.js version compatible with Vite 8:
-
-```sh
-cd app
-npm install
-npm test
-npm run build
-cd ..
-node -e "const fs=require('node:fs');fs.copyFileSync('causes-embed.html','docs/index.html');fs.copyFileSync('causes-preview.html','docs/preview.html')"
-```
-
-Commit the updated source and `docs/` files to publish. No credentials are needed by the static frontend.
+Editable source and database/endpoint definitions are in `app/`. GitHub Pages publishes the prebuilt `docs/` folder from `main`. Follow the [build instructions](app/README.md) to update it.
