@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {normalize,selectCauses,isTrustedParent,safeUrl} from './model.js';
+const data=normalize({causes:[{id:'a',name:'École',supporterCount:3},{id:'b',name:'Sport',featured:true,supporterCount:0},{id:'a',name:'Duplicate',supporterCount:5}]});
+test('supported causes exclude editorial-only picks and duplicate IDs',()=>assert.deepEqual(selectCauses(data.causes).map(c=>c.id),['a']));
+test('featured causes can have no player support',()=>assert.deepEqual(selectCauses(data.causes,{kind:'featured'}).map(c=>c.id),['b']));
+test('accent-insensitive search and no-match state',()=>{assert.equal(selectCauses(data.causes,{query:'ecole'}).length,1);assert.equal(selectCauses(data.causes,{query:'absent'}).length,0);});
+test('does not truncate lists at 100 or 1000 causes',()=>assert.equal(selectCauses(normalize({causes:Array.from({length:1100},(_,i)=>({id:String(i),name:`Cause ${i}`,supporterCount:1}))}).causes).length,1100));
+test('translations and descending support sort',()=>{const d=normalize({causes:[{id:'a',name:'Youth',supporterCount:1,translations:[{locale:'fr-CA',name:'Jeunesse'}]},{id:'b',name:'Sport',supporterCount:4}]});assert.equal(selectCauses(d.causes,{query:'jeunesse'})[0].name,'Jeunesse');assert.equal(selectCauses(d.causes,{sort:'supporters'})[0].id,'b');});
+test('rejects injected URLs, preserves unknown counts, and rejects malformed payloads',()=>{assert.equal(safeUrl('javascript:alert(1)'),null);assert.equal(safeUrl('https://u:p@example.com'),null);assert.equal(normalize({causes:[{id:'x',name:'X',supporterCount:'4'}]}).causes[0].supporterCount,null);assert.throws(()=>normalize({}));});
+test('messages require the correct parent and exact allowed origin',()=>{const p={};assert.ok(isTrustedParent({source:p,origin:'https://www.jouerpourdebon.ca'},p));assert.equal(isTrustedParent({source:{},origin:'https://www.jouerpourdebon.ca'},p),false);assert.equal(isTrustedParent({source:p,origin:'https://www.jouerpourdebon.ca.evil.test'},p),false);});
