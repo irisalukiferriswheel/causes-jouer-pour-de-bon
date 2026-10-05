@@ -20,5 +20,5 @@ export function localized(c,lang){const t=c.translations.find(t=>t.locale===lang
 const fold=v=>v.normalize('NFD').replace(/\p{Diacritic}/gu,'').toLocaleLowerCase();
 export function selectCauses(causes,{language='fr',query='',kind='supported',sort='name'}={}){
  const q=fold(query.trim());
- return causes.filter(c=>kind==='featured'?c.featured:c.supporterCount>0).map(c=>localized(c,language)).filter(c=>fold([c.name,c.description,c.country].join(' ')).includes(q)).sort((a,b)=>sort==='supporters'?b.supporterCount-a.supporterCount||a.name.localeCompare(b.name,language):a.name.localeCompare(b.name,language));
+ return causes.filter(c=>kind==='all'?true:kind==='featured'?c.featured:c.supporterCount>0).map(c=>localized(c,language)).filter(c=>fold([c.name,c.description,c.country].join(' ')).includes(q)).sort((a,b)=>sort==='supporters'?b.supporterCount-a.supporterCount||a.name.localeCompare(b.name,language):a.name.localeCompare(b.name,language));
 }
