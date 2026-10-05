@@ -3,7 +3,7 @@ const cents = value => {
  const n=Number(value), c=Math.round(n*100);
  return n>=0 && Number.isSafeInteger(c) && Math.abs(n*100-c)<1e-6 ? c : null;
 };
-export function publicPayload({settings,causes,translations,registrations,contributions,allocations},language='fr',now=new Date().toISOString()) {
+export function publicPayload({settings,causes,translations,registrations,contributions,allocations,catchups=[]},language='fr',now=new Date().toISOString()) {
  const registered=new Map(registrations.map(r=>[r.id,r]));
  // A newer funding allocation supersedes the legacy entry for that registration,
  // including refunded allocations. Never sum both representations of one payment.
@@ -20,6 +20,12 @@ export function publicPayload({settings,causes,translations,registrations,contri
    if(entry.cause_id!==cause.id||entry.status!=='confirmed'||r?.status!=='confirmed')continue;
    if(r.user_id)users.add(r.user_id);
    if(entry.currency===s.currency&&amount!==null)total+=amount;
+  }
+  const seenCatchups=new Set();
+  for(const entry of catchups){
+   if(seenCatchups.has(entry.id)||entry.cause_id!==cause.id||entry.status!=='confirmed'||entry.currency!==s.currency)continue;
+   seenCatchups.add(entry.id);const amount=cents(entry.amount);
+   if(amount!==null){total+=amount;if(entry.player_user_id)users.add(entry.player_user_id);}
   }
   if(!Number.isSafeInteger(total))throw new Error('Funding overflow');
   const goal=cents(s.funding_goal);

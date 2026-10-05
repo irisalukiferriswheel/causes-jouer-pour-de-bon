@@ -24,16 +24,17 @@ Deno.serve(async(req:Request)=>{
   const settings=await rows('cause_page_settings',{select:'*',publish_ready:'eq.true',order:'cause_id'});
   const ids=settings.map(s=>s.cause_id);
   if(!ids.length)return Response.json({causes:[],updatedAt:new Date().toISOString()},{headers:{...cors,'Cache-Control':'public, max-age=60'}});
-  const [causes,translations,chosen,contributions,allocations]=await Promise.all([
+  const [causes,translations,chosen,contributions,allocations,catchups]=await Promise.all([
    batches('causes','id',ids,{select:'*',status:'eq.approved',order:'id'}),
    batches('cause_translations','cause_id',ids,{select:'cause_id,locale,name,description',order:'id'}),
    batches('registrations','cause_id',ids,{select:'id,user_id,cause_id,status',status:'eq.confirmed',order:'id'}),
    batches('player_contributions','cause_id',ids,{select:'id,registration_id,cause_id,amount,currency,status',order:'id'}),
-   batches('cause_funding_allocations','cause_id',ids,{select:'id,registration_id,cause_id,cause_amount,currency,status',order:'id'},true)
+   batches('cause_funding_allocations','cause_id',ids,{select:'id,registration_id,cause_id,cause_amount,currency,status',order:'id'},true),
+   batches('cause_catchup_payments','cause_id',ids,{select:'id,cause_id,player_user_id,amount,currency,status',order:'id'},true)
   ]);
   const linkedIds=[...new Set([...contributions,...allocations].map(e=>e.registration_id))];
   const linked=await batches('registrations','id',linkedIds,{select:'id,user_id,cause_id,status',order:'id'});
-  const payload=publicPayload({settings,causes,translations,registrations:[...chosen,...linked],contributions,allocations},language);
+  const payload=publicPayload({settings,causes,translations,registrations:[...chosen,...linked],contributions,allocations,catchups},language);
   return Response.json(payload,{headers:{...cors,'Cache-Control':'public, max-age=60'}});
  }catch{return Response.json({error:'Causes unavailable'},{status:503,headers:{...cors,'Cache-Control':'no-store'}});}
 });
